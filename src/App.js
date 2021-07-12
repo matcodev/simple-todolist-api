@@ -3,44 +3,33 @@ import './App.css';
 
 function App() {
 
-  const [task, setTasks] = useState([])
+  const [task, setTasks] = useState(null)
 
   useEffect(() => {
-    const getTask = () => {
-      fetch("https://assets.breatheco.de/apis/fake/todos/user/mxespin")
-        .then(resp => resp.json())
-        .then(Response => {
-          Response.msg ? createUser() : setTasks(Response)
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    }
-    getTask();
-
     const createUser = () => {
       fetch('https://assets.breatheco.de/apis/fake/todos/user/mxespin', {
           method: "POST",
           body: JSON.stringify([]),
           headers: {
-              "Content-Type": "application/json"
+            "Content-Type": "application/json"
           }
       })
-          .then(resp => {
-              return resp.json();
-          })
-          .then(data => {
-              setTasks(data);
-          })
-          .catch(error => {
-              console.log(error);
-          });
+          .then(resp => resp.json())
+          .then(data => setTasks(data))
+          .catch(error => console.log(error))
   }
+    const getTask = () => {
+      fetch("https://assets.breatheco.de/apis/fake/todos/user/mxespin")
+        .then(resp => resp.json())
+        .then(data => {data.msg ? createUser() : setTasks(data)})
+        .catch(error => console.log(error))
+    }
+    getTask();
   }, [])
 
   const addNewTask = () => {
     const addTask = () => {
-      fetch('http://assets.breatheco.de/apis/fake/todos/user/mxespin', {
+      fetch('https://assets.breatheco.de/apis/fake/todos/user/mxespin', {
         method: "PUT",
         body: JSON.stringify(task),
         headers: {
@@ -49,22 +38,24 @@ function App() {
       })
       .then(resp => resp.json())
       .then(data => console.log(data))
-      .catch(error => console.log(error))
+      .catch(error => console.log("este es el error: " + error))
     }
     addTask();
   }
   const addTarea = e => {
     const {value} = e.target;
     if (e.key === "Enter" && value !== "" && task !== "") {
-      setTasks({...task,
-        label: value,
-        done: false});
-      e.target.value = "";
+      let arrayTask = [...task];
+      let currentTask = {
+        "label": value,
+        "done": false
       }
-      console.log('mi task :' + task);
-      addNewTask()
-    
-  }
+      let allTasks = arrayTask.concat(currentTask);
+      setTasks(allTasks);
+      e.target.value = "";
+      addNewTask();
+    }
+}
     
   const deleteTask = (indexArray) => {
     let newTasks = [];
@@ -77,30 +68,21 @@ function App() {
     setTasks(newTasks)
   }
 
-  function deleteAll() {
+  const deleteAll = () => {
     const deleteAllTasks = () => {
-      fetch('https://assets.breatheco.de/apis/fake/todos/user/ernestoleonidas', {
+      fetch('https://assets.breatheco.de/apis/fake/todos/user/mxespin', {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json"
         }
       })
-        .then(resp => {
-          //console.log(resp.text());
-          return resp.json();
-        })
-        .then(data => {
-          console.log(data)
-          //setTasks([])
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        .then(resp => resp.json())
+        .then(data => console.log(data))
+        .catch(error => console.log(error))
     }
     deleteAllTasks();
     setTasks([])
   }
-
 
   return (
     <div className="col-6 container">
@@ -120,18 +102,13 @@ function App() {
       <div className="container">
         <ul className="list-group">
           {task === null
-            ? "Loading..."
+            ? "Cargando tareas..."
             : task.map((item, index) => {
               return (
                 <li className="row list-group-item d-inline-flex align-items-center" id={index} key={index}>
                   <div className="col-10" >{item.label} </div>
                   <div className="col-1 btn">
-                    {item.done ?
-                      //hay que cambiar el json para actualizar el estado de false a true
-                      <span type="button" className="btn btn-success fas fa-check text-end" onClick={() => deleteTask(index)}></span>
-                      :
                       <span type="button" className="btn btn-danger fas fa-times text-end" onClick={() => deleteTask(index)}></span>
-                    }
                   </div>
                 </li>
               )
