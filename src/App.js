@@ -27,11 +27,10 @@ function App() {
     getTask();
   }, [])
 
-  const addNewTask = () => {
-    const addTask = () => {
+  const addNewTask = (currentTask) => {
       fetch('https://assets.breatheco.de/apis/fake/todos/user/mxespin', {
-        method: "PUT",
-        body: JSON.stringify(task),
+        method: "POST",
+        body: JSON.stringify(currentTask),
         headers: {
           "Content-Type": "application/json"
         }
@@ -39,21 +38,17 @@ function App() {
       .then(resp => resp.json())
       .then(data => console.log(data))
       .catch(error => console.log("este es el error: " + error))
-    }
-    addTask();
   }
   const addTarea = e => {
     const {value} = e.target;
     if (e.key === "Enter" && value !== "" && task !== "") {
-      let arrayTask = [...task];
       let currentTask = {
         "label": value,
         "done": false
       }
-      let allTasks = arrayTask.concat(currentTask);
-      setTasks(allTasks);
+      setTasks([...task, currentTask])
       e.target.value = "";
-      addNewTask();
+      addNewTask(task);
     }
 }
     
